@@ -10,12 +10,12 @@ import com.homvee.insurancecrm.vos.PageVO;
 import com.homvee.insurancecrm.vos.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -26,9 +26,6 @@ import java.util.Optional;
 public class UserServiceImpl extends BaseServiceImpl<User , Long> implements UserService {
     @Resource
     private UserDao userDao;
-    @Resource
-    @Lazy
-    private UserService userService;
 
     @Override
     public UserVO findByUserNameOrPhoneNum(String acctName) {
@@ -116,16 +113,4 @@ public class UserServiceImpl extends BaseServiceImpl<User , Long> implements Use
         userDao.saveAndFlush(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void testTrx(){
-
-        userDao.testTrx("1232");
-        userService.testTrx2();
-    }
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void testTrx2(){
-
-        userDao.testTrx("AAA");
-
-    }
 }

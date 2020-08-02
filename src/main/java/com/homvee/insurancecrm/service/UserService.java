@@ -20,6 +20,4 @@ public interface UserService extends BaseService<User , Long> {
 
     void save(UserVO userVO);
 
-    void testTrx();
-    void testTrx2();
 }

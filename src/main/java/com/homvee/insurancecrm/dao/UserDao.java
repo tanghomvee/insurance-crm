@@ -21,7 +21,4 @@ public interface UserDao  extends JpaRepository<User, Long> {
     @Query(value = "update t_user set yn=0 ,change_time=now() where id in(?1)" , nativeQuery = true)
     Integer del(List<Long> ids);
 
-    @Modifying
-    @Query(value = "update t_user set changer=?1,change_time=now() where id =2" , nativeQuery = true)
-    Integer testTrx(String str);
 }
