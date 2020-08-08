@@ -189,3 +189,37 @@ export const download = (params,caller) => {
             }
         })
 };
+
+
+
+export const queryAchieve = (url,params,caller) => {
+    return ajax(url , "POST" ,null ,params , caller);
+};
+export const downloadAchieve = (params,caller) => {
+    axios.get(`/achievement/download`, { //url: 接口地址
+        params: params,
+        responseType: `blob` //一定要写
+
+    }).then(res => {
+        if (res.status == 200) {
+            let blob = new Blob([res.data], {
+                type: 'application/vnd.ms-excel'
+                //type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8'
+                //word文档为application/msword,pdf文档为application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8
+            });
+            let objectUrl = URL.createObjectURL(blob);
+            let link = document.createElement("a");
+            let fname = `匹配数据.xls`; //下载文件的名字
+            link.href = objectUrl;
+            link.setAttribute("download", fname);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            this.$message({
+                type: "error",
+                message: "导出失败"
+            })
+        }
+    })
+};

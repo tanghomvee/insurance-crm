@@ -38,6 +38,7 @@ public class UsrAuthInterceptor extends HandlerInterceptorAdapter {
             if (!"/userData/download".equals(uri)){
                 if (!"/userData/list".equals(uri)){
                 if (!"/userData/in".equals(uri)){
+                if (!"/achievement/in".equals(uri)) {
 
                     response.setContentType(MEDIA_JSON);
                     PrintWriter printWriter = response.getWriter();
@@ -45,6 +46,7 @@ public class UsrAuthInterceptor extends HandlerInterceptorAdapter {
                     printWriter.flush();
                     printWriter.close();
                     return false;
+                }
                 }
 
                 }

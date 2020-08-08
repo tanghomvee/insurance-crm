@@ -57,8 +57,13 @@ module.exports = {
             target:"http://localhost/",
             // secure: false,
             changeOrigin: true
-        }
-    },
+        },
+      "/achievement/**":{
+        target:"http://localhost/",
+        // secure: false,
+        changeOrigin: true
+      }
+      },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
     // (https://github.com/webpack/css-loader#sourcemaps)

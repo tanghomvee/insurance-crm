@@ -12,6 +12,7 @@ import settings from './views/user/settings.vue';
 import Form from './views/content/Form.vue';
 import user from './views/content/user.vue';
 import echarts from './views/charts/echarts.vue';
+import achievement from './views/achievement/achievement.vue';
 
 let routes = [
     {
@@ -81,6 +82,17 @@ let routes = [
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
             { path: '/record/list', component: record, name: '消费列表' }
+
+        ]
+    },
+    {
+        path: '/',
+        component: Home,
+        name: '业绩记录',
+        iconCls: 'fa fa-home',//图标样式class
+        children: [
+            { path: '/main', component: Main, name: '主页', hidden: true },
+            { path: '/achievement/query', component: achievement, name: '业绩查询' }
 
         ]
     },

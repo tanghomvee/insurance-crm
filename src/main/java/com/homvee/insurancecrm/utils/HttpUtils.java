@@ -2,13 +2,15 @@ package com.homvee.insurancecrm.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -27,18 +29,27 @@ import java.util.Map;
 
 public class HttpUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(com.homvee.insurancecrm.utils.HttpUtils.class);
+
 
     public static String postForm(String url) throws Exception {
-        return postForm(url , null);
+        return postForm(url , Maps.newHashMap());
     }
     public static String postForm(String url , Map<String, ? extends Serializable> data) throws Exception {
         return postForm(url , data ,Consts.UTF_8);
     }
-    public static String postForm(String url , Map<String, ? extends Serializable> data , String encoding) throws Exception {
-        return postForm(url , data , Charset.forName(encoding));
+    public static String postForm(String url,CookieStore cookieStore) throws Exception {
+        return postForm(url , null,cookieStore);
     }
+    public static String postForm(String url , Map<String, ? extends Serializable> data,CookieStore cookieStore) throws Exception {
+        return postForm(url , data ,Consts.UTF_8,cookieStore);
+    }
+
     public static String postForm(String url , Map<String, ? extends Serializable> data , Charset encoding) throws Exception {
+
+        return postForm(url,data,encoding,null);
+    }
+    public static String postForm(String url , Map<String, ? extends Serializable> data , Charset encoding ,CookieStore cookieStore) throws Exception {
 
         HttpPost httpPost = new HttpPost(url);
         String body = "";
@@ -55,7 +66,7 @@ public class HttpUtils {
         //指定报文头【Content-type】、【User-Agent】
         httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
         try{
-           body = request(httpPost , encoding);
+           body = request(httpPost , encoding,cookieStore);
         }catch (Exception ex){
             LOGGER.error("请求url={},参数={}异常" , url , nvps.toString() , ex);
         }
@@ -66,12 +77,18 @@ public class HttpUtils {
         return postJSON(url , null);
     }
     public static String postJSON(String url , Object data) throws Exception {
-        return postJSON(url , data ,Consts.UTF_8);
+        return postJSON(url , data ,Consts.UTF_8 ,null);
+    }
+    public static String postJSON(String url ,CookieStore cookieStore ) throws Exception {
+        return postJSON(url , cookieStore);
+    }
+    public static String postJSON(String url , Object data,CookieStore cookieStore) throws Exception {
+        return postJSON(url , data ,Consts.UTF_8,cookieStore);
     }
     public static String postJSON(String url , Object data , String encoding) throws Exception {
-        return postJSON(url , data ,Charset.forName(encoding));
+        return postJSON(url , data ,Charset.forName(encoding),null);
     }
-    public static String postJSON(String url , Object data , Charset encoding) throws Exception {
+    public static String postJSON(String url , Object data , Charset encoding,CookieStore cookieStore) throws Exception {
 
         HttpPost httpPost = new HttpPost(url);
         String body = "" , content = data == null ? "" : JSONObject.toJSONString(data);
@@ -82,7 +99,7 @@ public class HttpUtils {
         //设置header信息
         httpPost.setHeader("Content-type", "application/json");
         try{
-           body = request(httpPost , encoding);
+           body = request(httpPost , encoding,cookieStore);
         }catch (Exception ex){
             LOGGER.error("请求url={},参数={}异常" , url , content , ex);
         }
@@ -92,6 +109,10 @@ public class HttpUtils {
 
 
     public static InputStream downloadByJSON(String url , Object data) throws Exception {
+
+        return downloadByJSON(url , data ,null);
+    }
+    public static InputStream downloadByJSON(String url , Object data,CookieStore cookieStore) throws Exception {
 
         HttpPost httpPost = new HttpPost(url);
         String  content = data == null ? "" : JSONObject.toJSONString(data);
@@ -103,7 +124,7 @@ public class HttpUtils {
         //设置header信息
         httpPost.setHeader("Content-type", "application/json");
         try{
-            body = download(httpPost , Consts.UTF_8);
+            body = download(httpPost , cookieStore);
         }catch (Exception ex){
             LOGGER.error("请求url={},参数={}异常" , url , content , ex);
         }
@@ -112,6 +133,10 @@ public class HttpUtils {
     }
 
     public static InputStream downloadByForm(String url , Map<String, ? extends Serializable> data) throws Exception {
+
+        return downloadByForm(url ,data , null);
+    }
+    public static InputStream downloadByForm(String url , Map<String, ? extends Serializable> data,CookieStore cookieStore) throws Exception {
 
         HttpPost httpPost = new HttpPost(url);
         InputStream body = null;
@@ -128,7 +153,7 @@ public class HttpUtils {
         //指定报文头【Content-type】、【User-Agent】
         httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
         try{
-            body = download(httpPost , Consts.UTF_8);
+            body = download(httpPost ,  cookieStore);
         }catch (Exception ex){
             LOGGER.error("请求url={},参数={}异常" , url , nvps.toString() , ex);
         }
@@ -137,9 +162,11 @@ public class HttpUtils {
     }
 
 
-    private static  String request(HttpEntityEnclosingRequestBase requestBase , Charset encoding) throws IOException {
+    private static  String request(HttpRequestBase requestBase , Charset encoding,CookieStore cookieStore) throws IOException {
         String body = "";
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+
+        CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
         CloseableHttpResponse httpResponse = null;
         try{
             httpResponse =  httpClient.execute(requestBase);
@@ -161,9 +188,9 @@ public class HttpUtils {
 
         return body;
     }
-    private static  InputStream download(HttpEntityEnclosingRequestBase requestBase , Charset encoding) throws IOException {
+    private static  InputStream download(HttpRequestBase requestBase ,CookieStore cookieStore) throws IOException {
         InputStream body = null;
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
         CloseableHttpResponse httpResponse = null;
         try{
             httpResponse =  httpClient.execute(requestBase);
@@ -198,7 +225,7 @@ public class HttpUtils {
         //设置header信息
         httpPost.setHeader("Content-type", "text/xml");
         try{
-            body = request(httpPost , encoding);
+            body = request(httpPost , encoding,null);
         }catch (Exception ex){
             LOGGER.error("请求url={},参数={}异常" , url , content , ex);
         }
