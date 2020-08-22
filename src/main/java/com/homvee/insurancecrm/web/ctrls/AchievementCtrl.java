@@ -9,6 +9,7 @@ import com.homvee.insurancecrm.vos.Msg;
 import com.homvee.insurancecrm.web.BaseCtrl;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,11 +53,12 @@ public class AchievementCtrl extends BaseCtrl {
 //            @PathVariable("cookie") String cookie,
 //            @PathVariable("fromDate") String fromDate,
 //            @PathVariable("toDate") String toDate,
+            @RequestParam("file") MultipartFile file,
             @RequestParam("cookie") String cookie,
-            @RequestParam("fromDate") Date fromDate,
-            @RequestParam("toDate") Date toDate,
-            @RequestParam("uid") String uid,
-            @RequestParam("file") MultipartFile file){
+            @RequestParam("fromDate") String fromDate,
+            @RequestParam("toDate") String toDate,
+            @RequestParam("uid") String uid
+            ){
         if (file == null || file.isEmpty()) {
             return Msg.error("请选择上传的文件");
         }
@@ -66,11 +68,13 @@ public class AchievementCtrl extends BaseCtrl {
         if (StringUtils.isEmpty(uid)){
             return Msg.error("非法参数");
         }
-        if (toDate == null){
-            toDate = DateTime.now().toLocalDate().toDate();
+        Date to = DateTime.now().toLocalDate().toDate();
+        if (!StringUtils.isEmpty(toDate)){
+            to = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(toDate).toDate();
         }
-        if (fromDate == null){
-            fromDate = DateTime.now().minusMonths(1).toLocalDate().toDate();
+        Date from = DateTime.now().minusMonths(1).toLocalDate().toDate();
+        if (!StringUtils.isEmpty(fromDate)){
+            from = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime(fromDate).toDate();
         }
 
         String fName = file.getOriginalFilename();
@@ -82,7 +86,7 @@ public class AchievementCtrl extends BaseCtrl {
                 log.warn("上传文件无数据:{}" ,fName );
                 return Msg.success();
             }
-            CACHE.put(uid , new AchievementVO(uid ,cookie ,excelData,fromDate ,toDate));
+            CACHE.put(uid , new AchievementVO(uid ,cookie ,excelData,from ,to));
             return Msg.success();
         } catch (Exception e) {
             log.error("上传文件异常", e);
@@ -97,8 +101,8 @@ public class AchievementCtrl extends BaseCtrl {
         }
         return Msg.error();
     }
-    @PostMapping("/download")
-    public ResponseEntity<byte[]> download(@RequestBody String uid) throws Exception {
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> download(String uid) throws Exception {
         AchievementVO vo = CACHE.get(uid);
         if (vo == null){
             throw new Exception("数据不存在");

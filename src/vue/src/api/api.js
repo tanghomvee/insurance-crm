@@ -192,8 +192,11 @@ export const download = (params,caller) => {
 
 
 
-export const queryAchieve = (url,params,caller) => {
-    return ajax(url , "POST" ,null ,params , caller);
+export const queryAchieve = (params,caller) => {
+    return ajax(`/achievement/query` , "POST" , {
+            'Content-Type': 'multipart/form-data'
+        }
+        ,params , caller);
 };
 export const downloadAchieve = (params,caller) => {
     axios.get(`/achievement/download`, { //url: 接口地址

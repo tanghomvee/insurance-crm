@@ -17,6 +17,7 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -56,12 +57,19 @@ public class AchievementServiceImpl implements AchievementService {
             String urlTmp = String.format(url,cardNum,vo.getFromDate() , vo.getToDate());
             try {
                String rs = HttpUtils.postForm(urlTmp , cookieStore);
-               if (StringUtils.isEmpty(rs)){
+                if (StringUtils.isEmpty(rs)){
+                    PiccData.PiccRow piccRowTmp = new  PiccData.PiccRow();
+                    piccRowTmp.setLicenseNo(cardNum);
+                   userData.add(piccRowTmp);
                    continue;
                }
 
                 PiccData dataPicc = JSON.parseObject(rs , PiccData.class);
-               if (dataPicc.getTotal() < 1){
+               if (dataPicc== null || dataPicc.getTotal()== null || CollectionUtils.isEmpty(dataPicc.getRows())|| dataPicc.getTotal() < 1){
+                   PiccData.PiccRow piccRowTmp = new  PiccData.PiccRow();
+                   piccRowTmp.setLicenseNo(cardNum);
+                   piccRowTmp.setNote(rs);
+                   userData.add(piccRowTmp);
                    continue;
                }
                 PiccData.PiccRow piccRow = dataPicc.getRows().get(0);
@@ -103,24 +111,23 @@ public class AchievementServiceImpl implements AchievementService {
                 dataMap.put("车船税手续费率（收）","");
                 dataMap.put("应收车船税手续费收入","");
                 dataMap.put("应收手续费收入合计","");
+                dataMap.put("备注",data.getNote());
 
                 return dataMap;
             }
         });
-
-
 
         return (ByteArrayOutputStream) ExcelUtils.download("匹配的数据" , excelData);
     }
 
 
     @Data
-    private class PiccData implements Serializable{
+    public static class PiccData implements Serializable{
         private Integer total;
         private List<PiccRow> rows;
 
         @Data
-        private class PiccRow implements Serializable{
+        public static class PiccRow implements Serializable{
             private String actualPremium;
             private String agentName;
             private String bZFlag;
@@ -186,6 +193,7 @@ public class AchievementServiceImpl implements AchievementService {
             private String typeCode;
             private String underWriteFlag;
             private String vinNo;
+            private String  note;
         }
     }
 }

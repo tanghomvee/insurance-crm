@@ -41,7 +41,6 @@
 <script>
 	import util from '../../common/js/util';
 	import NProgress from 'nprogress';
-	import uuid from 'uuid/v1';
 	import { downloadAchieve, queryAchieve} from '../../api/api';
 	export default {
 		data() {
@@ -97,14 +96,6 @@
 							_this.form.uid = _this.getUId();
 							_this.$refs.fileRef.submit();
 							NProgress.done();
-					/*		addAcct(para).then(function()  {
-								_this.addLoading = false;
-								NProgress.done();
-								util.Msg.success(_this);
-								_this.$refs['form'].resetFields();
-								_this.addFormVisible = false;
-								_this.getContents();
-							});*/
 						});
 					}
 				});

@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.util.CollectionUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,6 +71,11 @@ public class ExcelUtils {
     }
 
     public  static OutputStream download(String sheetName , List<Map<String,String>> data) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (CollectionUtils.isEmpty(data)){
+            return bos;
+        }
+
         HSSFWorkbook book = new HSSFWorkbook();
         HSSFSheet sheet = book.createSheet(sheetName);
         sheet.setDefaultColumnWidth(15);
@@ -90,7 +96,7 @@ public class ExcelUtils {
             }
         }
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
         book.write(bos);
         return  bos;
     }
@@ -121,6 +127,9 @@ public class ExcelUtils {
      */
     private static   Object getCellValue(Cell cell){
         Object value = null;
+        if ( cell == null){
+            return value;
+        }
         //格式化number String字符
         DecimalFormat df = new DecimalFormat("0");
         //日期格式化
