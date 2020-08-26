@@ -16,9 +16,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://49.4.114.69:3306/ins_crm?autoReconnect=true&useUnicode=true&characterEncoding=UTF8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/ins_crm?autoReconnect=true&useUnicode=true&characterEncoding=UTF8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: 'root'
+    password: '!QAZ2wsx'
 
 #  servlet:
 #    multipart:
